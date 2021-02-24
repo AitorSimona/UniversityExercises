@@ -1,0 +1,8 @@
+So, What I've done is basically follow the tutorial, Art track.
+Place environment props, use proBuilder to create a cone, using many of its tools. 
+Added basic point and spot lights, as well as rotating the directional light to
+create nighttime. Emissives modified in the skyscrapers and added an additional emissive
+to the cone. Added several more objects to the scene. Also created an umbrella using proBuilder,
+check ProBuilderMade object in the scene (the last object).
+
+Aitor Simona
