@@ -1,8 +1,7 @@
 I've been working with cinemachine, ended up doing a camera transitions handler and a composition of 
 cameras to follow a character, based on the distance to the camera to switch from close to far,
-front camera pressing Q and up camera when character is rotated upwards. You can go to the Camera
-game object and play with the weight values of CinemachineMixingCamera script, some may not change
-due to them being controlled by Camera Transitions cript, move and rotate Robot Kyle game object
-to see results. Cinemachine blends between the different cameras according to my indications. 
+front camera pressing Q and up camera when character is rotated upwards. Move around 
+and watch Camera object inspecotr to see results. 
+Cinemachine blends between the different cameras according to my indications. 
 
 Aitor Simona
