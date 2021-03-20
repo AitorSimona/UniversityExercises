@@ -14,6 +14,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
 #include <string>
+#include <vector>
 
 #pragma warning(disable : 4267) // conversion from X to Y, possible loss of data
 

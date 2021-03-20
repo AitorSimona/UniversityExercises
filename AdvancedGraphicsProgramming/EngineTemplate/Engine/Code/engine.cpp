@@ -188,18 +188,52 @@ void Init(App* app)
     // - textures
 
     app->mode = Mode_TexturedQuad;
+
+    // --- Open GL info ---
+    app->glInfo.version = (const char*)glGetString(GL_VERSION);
+    app->glInfo.renderer = (const char*)glGetString(GL_RENDERER);
+    app->glInfo.vendor = (const char*)glGetString(GL_VENDOR);
+    app->glInfo.shadingLanguageVersion = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
+
+    GLint num_extensions;
+    glGetIntegerv(GL_NUM_EXTENSIONS, &num_extensions);
+
+    for (int i = 0; i < num_extensions; ++i)
+    {
+        app->glInfo.extensions.push_back((const char*)glGetStringi(GL_EXTENSIONS, GLuint(i)));
+    }
+
+
 }
 
 void Gui(App* app)
 {
-    ImGui::Begin("Info");
-    ImGui::Text("FPS: %f", 1.0f/app->deltaTime);
-    ImGui::End();
+    if (app->showInfo)
+    {
+        ImGui::Begin("Info");
+        ImGui::Text("FPS: %f", 1.0f / app->deltaTime);
+
+        // --- Open GL info ---
+        ImGui::Text("OpenGL version: %s", app->glInfo.version.c_str());
+        ImGui::Text("OpenGL renderer: %s", app->glInfo.renderer.c_str());
+        ImGui::Text("GPU vendor: %s", app->glInfo.vendor.c_str());
+        ImGui::Text("GLSL version: %s", app->glInfo.shadingLanguageVersion.c_str());
+
+
+        for (int i = 0; i < app->glInfo.extensions.size(); ++i)
+        {
+            ImGui::Text("Extension %i: %s", i, app->glInfo.extensions[i].c_str());
+        }
+
+        ImGui::End();
+    }
 }
 
 void Update(App* app)
 {
     // You can handle app->input keyboard/mouse here
+    if (app->input.keys[0] == BUTTON_PRESS)
+        app->showInfo = !app->showInfo;
 }
 
 void Render(App* app)
@@ -222,5 +256,8 @@ void Render(App* app)
 
         default:;
     }
+
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

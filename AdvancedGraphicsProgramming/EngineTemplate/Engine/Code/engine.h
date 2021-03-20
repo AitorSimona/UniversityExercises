@@ -36,6 +36,16 @@ struct Program
     u64                lastWriteTimestamp; // What is this for?
 };
 
+struct OpenGLInfo
+{
+    std::string version;
+    std::string renderer;
+    std::string vendor;
+    std::string shadingLanguageVersion;
+
+    std::vector<std::string> extensions;
+};
+
 enum Mode
 {
     Mode_TexturedQuad,
@@ -72,6 +82,10 @@ struct App
 
     // Mode
     Mode mode;
+
+    // OpenGL info
+    OpenGLInfo glInfo;
+    bool showInfo = false;
 
     // Embedded geometry (in-editor simple meshes such as
     // a screen filling quad, a cube, a sphere...)
