@@ -5,6 +5,7 @@
 #pragma once
 
 #include "platform.h"
+#include "Geometry.h"
 #include <glad/glad.h>
 
 typedef glm::vec2  vec2;
