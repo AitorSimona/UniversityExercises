@@ -330,6 +330,8 @@ void Update(App* app)
 
 void Render(App* app)
 {
+    glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 1, -1, "Render");
+
     switch (app->mode)
     {
         case Mode_TexturedQuad:
@@ -370,6 +372,6 @@ void Render(App* app)
         default:;
     }
 
-
+    glPopDebugGroup();
 }
 
