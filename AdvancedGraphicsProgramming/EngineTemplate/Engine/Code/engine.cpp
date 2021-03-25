@@ -311,6 +311,21 @@ void Update(App* app)
     // You can handle app->input keyboard/mouse here
     if (app->input.keys[0] == BUTTON_PRESS)
         app->showInfo = !app->showInfo;
+
+    for (u64 i = 0; i < app->programs.size(); ++i)
+    {
+        Program& program = app->programs[i];
+        u64 currentTimestamp = GetFileLastWriteTimestamp(program.filepath.c_str());
+
+        if (currentTimestamp > program.lastWriteTimestamp)
+        {
+            glDeleteProgram(program.handle);
+            String programSource = ReadTextFile(program.filepath.c_str());
+            const char* programName = program.programName.c_str();
+            program.handle = CreateProgramFromSource(programSource, programName);
+            program.lastWriteTimestamp = currentTimestamp;
+        }
+    }
 }
 
 void Render(App* app)
