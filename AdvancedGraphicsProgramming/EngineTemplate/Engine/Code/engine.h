@@ -6,6 +6,8 @@
 
 #include "platform.h"
 #include "Geometry.h"
+#include "Mesh.h"
+#include "assimp_model_loading.h"
 #include <glad/glad.h>
 
 typedef glm::vec2  vec2;
@@ -35,6 +37,7 @@ struct Program
     std::string        filepath;
     std::string        programName;
     u64                lastWriteTimestamp; // What is this for?
+    VertexShaderLayout vertexInputLayout;
 };
 
 struct OpenGLInfo
@@ -50,6 +53,7 @@ struct OpenGLInfo
 enum Mode
 {
     Mode_TexturedQuad,
+    Mode_Model,
     Mode_Count
 };
 
@@ -70,16 +74,23 @@ struct App
 
     std::vector<Texture>  textures;
     std::vector<Program>  programs;
+    std::vector<Mesh> meshes;
+    std::vector<Model> models;
+    std::vector<Material> materials;
 
     // program indices
     u32 texturedGeometryProgramIdx;
-    
+    u32 texturedMeshProgramIdx;
+
     // texture indices
     u32 diceTexIdx;
     u32 whiteTexIdx;
     u32 blackTexIdx;
     u32 normalTexIdx;
     u32 magentaTexIdx;
+
+    u32 model;
+    u32 texturedMeshProgram_uTexture;
 
     // Mode
     Mode mode;
@@ -99,6 +110,8 @@ struct App
     // VAO object to link our screen filling quad with our textured quad shader
     GLuint vao;
 };
+
+u32 LoadTexture2D(App* app, const char* filepath);
 
 void Init(App* app);
 
