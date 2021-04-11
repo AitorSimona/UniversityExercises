@@ -98,6 +98,30 @@ u32 LoadProgram(App* app, const char* filepath, const char* programName)
     program.filepath = filepath;
     program.programName = programName;
     program.lastWriteTimestamp = GetFileLastWriteTimestamp(filepath);
+
+    int attributeCount;
+    glGetProgramiv(program.handle, GL_ACTIVE_ATTRIBUTES, &attributeCount);
+
+    GLchar attributeName[64];
+    GLsizei attributeNameLength;
+    GLint attributeSize;
+    GLenum attributeType;
+
+    for (int i = 0; i < attributeCount; ++i)
+    {
+        glGetActiveAttrib(program.handle,
+            i,
+            64/*ARRAY_COUNT(attributeName)*/,
+            &attributeNameLength,
+            &attributeSize,
+            &attributeType,
+            attributeName
+        );
+
+        program.vertexInputLayout.attributes.push_back(
+            { (u8)glGetAttribLocation(program.handle, attributeName), (u8)attributeSize }); // position
+    }
+
     app->programs.push_back(program);
 
     return app->programs.size() - 1;
@@ -281,51 +305,8 @@ void Init(App* app)
     app->normalTexIdx = LoadTexture2D(app, "color_normal.png");
     app->magentaTexIdx = LoadTexture2D(app, "color_magenta.png");
 
-    // create vertex format
-    //VertexBufferLayout vertexBufferLayout = {};
-    //vertexBufferLayout.attributes.push_back(VertexBufferAttribute{ 0,3,0 }); // 3d positions
-    //vertexBufferLayout.attributes.push_back(VertexBufferAttribute{ 2,2,3*sizeof(float)}); // tex coords
-    //vertexBufferLayout.stride = 5 * sizeof(float);
-
-    // add the submesh into the mesh
-    //Submesh submesh = {};
-    //submesh.vertexBufferLayout = vertexBufferLayout;
-    //submesh.vertices.swap(vertices);
-    //submesh.indices.swap(indices);
-    //myMesh->submeshes.push_back(submesh);
-
-    app->texturedMeshProgramIdx = LoadProgram(app, "shaders.glsl", "SHOW_TEXTURED_MESH");
-    Program& texturedMeshProgram = app->programs[app->texturedMeshProgramIdx];
-
-    int attributeCount;
-    glGetProgramiv(texturedMeshProgram.handle, GL_ACTIVE_ATTRIBUTES, &attributeCount);
-
-    GLchar * attributeName = new GLchar[64];
-    GLsizei attributeNameLength;
-    GLint attributeSize;
-    GLenum attributeType;
-
-    for (int i = 0; i < attributeCount; ++i)
-    {
-        glGetActiveAttrib(texturedMeshProgram.handle,
-            i,
-            64/*ARRAY_COUNT(attributeName)*/,
-            &attributeNameLength,
-            &attributeSize,
-            &attributeType,
-            attributeName
-        );
-
-        texturedMeshProgram.vertexInputLayout.attributes.push_back(
-            { (u8)glGetAttribLocation(texturedMeshProgram.handle, attributeName), (u8)attributeSize }); // position
-    }
-
+    app->texturedMeshProgramIdx = LoadProgram(app, "shaders.glsl", "SHOW_TEXTURED_MESH");  
     app->model = LoadModel(app, "Patrick/Patrick.obj");
-    
-
-    //texturedMeshProgram.vertexInputLayout.attributes.push_back({ 0, 3 }); // position
-    //texturedMeshProgram.vertexInputLayout.attributes.push_back({ 2, 2 }); // texCoord
-
 }
 
 void Gui(App* app)
