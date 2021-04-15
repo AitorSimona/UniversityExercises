@@ -385,49 +385,48 @@ void Update(App* app)
 
     ////glm::mat4 worldMatrix = glm::mat4(1.0);
 
-    //glm::mat4 CameraMatrix = glm::lookAt(
-    //    vec3(4.0f, 5.0f, 6.0f), // the position of your camera, in world space
-    //    vec3(0.0f),   // where you want to look at, in world space
-    //    glm::vec3(0,1,0)        // probably glm::vec3(0,1,0), but (0,-1,0) would make you looking upside-down, which can be great too
-    //);    
+    glm::mat4 CameraMatrix = glm::lookAt(
+        vec3(4.0f, 5.0f, 6.0f), // the position of your camera, in world space
+        vec3(0.0f),   // where you want to look at, in world space
+        glm::vec3(0,1,0)        // probably glm::vec3(0,1,0), but (0,-1,0) would make you looking upside-down, which can be great too
+    );    
 
-    //// Generates a really hard-to-read matrix, but a normal, standard 4x4 matrix nonetheless
-    //glm::mat4 projectionMatrix = glm::perspective(
-    //    glm::radians(60.0f), // The vertical Field of View, in radians: the amount of "zoom". Think "camera lens". Usually between 90° (extra wide) and 30° (quite zoomed in)
-    //    4.0f / 3.0f,       // Aspect Ratio. Depends on the size of your window. Notice that 4/3 == 800/600 == 1280/960, sounds familiar ?
-    //    0.1f,              // Near clipping plane. Keep as big as possible, or you'll get precision issues.
-    //    100.0f             // Far clipping plane. Keep as little as possible.
-    //);
-    //
-    //glm::mat4 worldViewProjectionMatrix = projectionMatrix * CameraMatrix;
+    // Generates a really hard-to-read matrix, but a normal, standard 4x4 matrix nonetheless
+    glm::mat4 projectionMatrix = glm::perspective(
+        glm::radians(60.0f), // The vertical Field of View, in radians: the amount of "zoom". Think "camera lens". Usually between 90° (extra wide) and 30° (quite zoomed in)
+        4.0f / 3.0f,       // Aspect Ratio. Depends on the size of your window. Notice that 4/3 == 800/600 == 1280/960, sounds familiar ?
+        0.1f,              // Near clipping plane. Keep as big as possible, or you'll get precision issues.
+        100.0f             // Far clipping plane. Keep as little as possible.
+    );
+    
 
-    //glBindBuffer(GL_UNIFORM_BUFFER, app->uniformbufferHandle);
-    //u8* bufferData = (u8*)glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-    //u32 bufferHead = 0;
+    glBindBuffer(GL_UNIFORM_BUFFER, app->uniformbufferHandle);
+    u8* bufferData = (u8*)glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+    u32 bufferHead = 0;
 
-    //for (Entity& ent : app->entities)
-    //{
-    //    bufferHead = Align(bufferHead, app->uniformBlockAlignment);
+    for (Entity& ent : app->entities)
+    {
+        glm::mat4 worldViewProjectionMatrix = projectionMatrix * CameraMatrix * ent.worldMatrix;
 
-    //    ent.localParamsOffset = bufferHead;
+        bufferHead = Align(bufferHead, app->uniformBlockAlignment);
 
-    //    memcpy(bufferData + bufferHead, glm::value_ptr(ent.worldMatrix), sizeof(glm::mat4));
-    //    bufferHead += sizeof(glm::mat4);
+        ent.localParamsOffset = bufferHead;
 
-    //    memcpy(bufferData + bufferHead, glm::value_ptr(worldViewProjectionMatrix), sizeof(glm::mat4));
-    //    bufferHead += sizeof(glm::mat4);
+        memcpy(bufferData + bufferHead, glm::value_ptr(ent.worldMatrix), sizeof(glm::mat4));
+        bufferHead += sizeof(glm::mat4);
 
-    //    ent.localParamsSize = bufferHead - ent.localParamsOffset;
-    //}
+        memcpy(bufferData + bufferHead, glm::value_ptr(worldViewProjectionMatrix), sizeof(glm::mat4));
+        bufferHead += sizeof(glm::mat4);
 
+        ent.localParamsSize = bufferHead - ent.localParamsOffset;
+    }
 
     //u32 blockOffset = 0;
     //u32 blockSize = sizeof(glm::mat4) * 2;
     //glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), app->uniformbufferHandle, blockOffset, blockSize);
 
-    //glUnmapBuffer(GL_UNIFORM_BUFFER);
-    //glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
+    glUnmapBuffer(GL_UNIFORM_BUFFER);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 GLuint FindVAO(Mesh& mesh, u32 submeshIndex, const Program& program)
@@ -537,55 +536,12 @@ void Render(App* app)
             Program& texturedMeshProgram = app->programs[app->texturedMeshProgramIdx];
             glUseProgram(texturedMeshProgram.handle);
 
-            glm::mat4 CameraMatrix = glm::lookAt(
-                vec3(5.0f, 20.0f, 15.0f), // the position of your camera, in world space
-                vec3(0.0f),   // where you want to look at, in world space
-                glm::vec3(0, 1, 0)        // probably glm::vec3(0,1,0), but (0,-1,0) would make you looking upside-down, which can be great too
-            );
-
-            // Generates a really hard-to-read matrix, but a normal, standard 4x4 matrix nonetheless
-            glm::mat4 projectionMatrix = glm::perspective(
-                glm::radians(60.0f), // The vertical Field of View, in radians: the amount of "zoom". Think "camera lens". Usually between 90° (extra wide) and 30° (quite zoomed in)
-                4.0f / 3.0f,       // Aspect Ratio. Depends on the size of your window. Notice that 4/3 == 800/600 == 1280/960, sounds familiar ?
-                0.1f,              // Near clipping plane. Keep as big as possible, or you'll get precision issues.
-                100.0f             // Far clipping plane. Keep as little as possible.
-            );
-
-
             for (Entity& ent : app->entities)
             {
                 Model& model = app->models[ent.modelIndex];
                 Mesh& mesh = app->meshes[model.meshIdx];
 
-                // --- Fill uniform buffer ---
-
-                glm::mat4 worldViewProjectionMatrix = projectionMatrix * CameraMatrix * ent.worldMatrix;
-
-
-                glBindBuffer(GL_UNIFORM_BUFFER, app->uniformbufferHandle);
-                u8* bufferData = (u8*)glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-                u32 bufferHead = 0;
-
-
-                bufferHead = Align(bufferHead, app->uniformBlockAlignment);
-
-                ent.localParamsOffset = bufferHead;
-
-                memcpy(bufferData + bufferHead, glm::value_ptr(ent.worldMatrix), sizeof(glm::mat4));
-                bufferHead += sizeof(glm::mat4);
-
-                memcpy(bufferData + bufferHead, glm::value_ptr(worldViewProjectionMatrix), sizeof(glm::mat4));
-                bufferHead += sizeof(glm::mat4);
-
-                ent.localParamsSize = bufferHead - ent.localParamsOffset;
-                
-                u32 blockOffset = 0;
-                u32 blockSize = sizeof(glm::mat4) * 2;
-                glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), app->uniformbufferHandle, blockOffset, blockSize);
-
-                glUnmapBuffer(GL_UNIFORM_BUFFER);
-                glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
+                glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), app->uniformbufferHandle, ent.localParamsOffset, ent.localParamsSize);
 
                 for (u32 i = 0; i < mesh.submeshes.size(); ++i)
                 {
@@ -602,7 +558,6 @@ void Render(App* app)
                     Submesh& submesh = mesh.submeshes[i];
                     glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);
                 }
-
             }
         }
         break;

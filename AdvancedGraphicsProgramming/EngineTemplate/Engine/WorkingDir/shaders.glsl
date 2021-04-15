@@ -63,7 +63,7 @@ void main()
 	vNormal = vec3(uWorldMatrix * vec4(aNormal, 0.0));
 	gl_Position = uWorldViewProjectionMatrix * vec4(aPosition, 1.0);
 
-	float clippingScale = 5.0;
+	//float clippingScale = 5.0;
 
 	//gl_Position = vec4(aPosition, clippingScale);
 
