@@ -10,6 +10,8 @@
 #include "assimp_model_loading.h"
 #include <glad/glad.h>
 
+#define BINDING(b) b
+
 typedef glm::vec2  vec2;
 typedef glm::vec3  vec3;
 typedef glm::vec4  vec4;
@@ -50,6 +52,22 @@ struct OpenGLInfo
     std::vector<std::string> extensions;
 };
 
+struct Entity
+{
+    Entity(glm::mat4 world, u32 modelIdx, u32 localParamsOff, u32 localParamsSiz)
+    {
+        worldMatrix = world;
+        modelIndex = modelIdx;
+        localParamsOffset = localParamsOff;
+        localParamsSize = localParamsSiz;
+    }
+
+    glm::mat4 worldMatrix;
+    u32 modelIndex;
+    u32 localParamsOffset;
+    u32 localParamsSize;
+};
+
 enum Mode
 {
     Mode_TexturedQuad,
@@ -69,7 +87,9 @@ struct App
     // Graphics
     char gpuName[64];
     char openGlVersion[64];
-
+    GLint maxUniformBufferSize;
+    GLint uniformBlockAlignment;
+    GLuint uniformbufferHandle;
     ivec2 displaySize;
 
     std::vector<Texture>  textures;
@@ -77,6 +97,8 @@ struct App
     std::vector<Mesh> meshes;
     std::vector<Model> models;
     std::vector<Material> materials;
+    std::vector<Entity> entities;
+
 
     // program indices
     u32 texturedGeometryProgramIdx;
